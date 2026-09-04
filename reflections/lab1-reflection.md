@@ -1,16 +1,16 @@
 # Lab Reflection — WalkMates
 
-> One per lab. Keep it **short and specific** — this is graded for *understanding*, not length.
-> Half a page to a page is plenty. Bullet points are fine.
->
-> **Before writing:** copy this file to `reflections/labN-reflection.md`, replacing `N` with the
-> lab number. Keep this template unchanged so it remains available for the next lab.
-
-**Lab:** 1
-**Pair:** (names)
-**Repo commit/tag:** (link — Labs 1–3; write `N/A` for Lab 4)
+**Lab:** 1  
+**Pair:** Anna Forslund & Andreas Wallgren  
+**Repo commit/tag:** (link — Labs 1–3; write `N/A` for Lab 4)  
+---
 
 ---
+
+## Reflection Template
+
+> Keep it **short and specific** — this is graded for *understanding*, not length.
+> Half a page to a page is plenty. Bullet points are fine.
 
 ### 1. What we did
 A few sentences: which tests/artifacts you produced and why those, against which requirements
@@ -36,5 +36,48 @@ If you had another hour, what's the next test or risk you'd go after?
 
 ---
 
-*(Lab 4 only)* Replace sections 1–2 with a one-paragraph summary of your SUsAF map and the ethics
-trade-off you argued; keep sections 3–5.
+## Activity 2.1
+
+### 1. What we did
+
+
+### 2. What we found
+
+
+### 3. AI use
+
+
+### 4. Judgment
+
+
+### 5. What we'd test next
+
+---
+## Activity 2.2
+
+### 1. What we did
+
+### 2. What we found
+
+### 3. AI use
+
+### 4. Judgment
+
+### 5. What we'd test next
+
+---
+## Activity 2.3
+
+### 1. What we did
+
+
+### 2. What we found
+
+
+### 3. AI use
+
+
+### 4. Judgment
+
+
+### 5. What we'd test next
