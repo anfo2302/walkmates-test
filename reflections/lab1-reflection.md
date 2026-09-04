@@ -7,7 +7,7 @@
 > lab number. Keep this template unchanged so it remains available for the next lab.
 
 **Lab:** 1
-**Pair:** 
+**Pair:** (names)
 **Repo commit/tag:** (link — Labs 1–3; write `N/A` for Lab 4)
 
 ---
@@ -24,6 +24,8 @@ covered-but-buggy path, a fallback that didn't behave, a metamorphic relation th
 - What did you use AI for in this lab?
 - **What did the AI suggest vs. what you kept or changed — and why?** (the key question)
 - Anything the AI produced that you suspected was wrong or weak? How did you check?
+
+We used AI in part A of the lab to interpret the questions, mainly 1.1.3 where we were unsure what was expected. We got different suggestions 
 
 ### 4. Judgment
 Where did *you* have to decide something the tools/AI couldn't decide for you? (e.g. which

@@ -39,4 +39,12 @@ class SeekerSpecBasedTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new Seeker("not-an-email", "Sam", "0707654321"));
     }
+
+    @Test
+    @DisplayName("Adding 250 SEK to a new seeker gives a 250.00 balance")
+    void addingFundsWorks() {
+        Seeker seeker = new Seeker("you@example.com", "You", "0701234567");  // Arrange
+        seeker.addFunds(250.00);                                              // Act
+        assertThat(seeker.getBalance()).isEqualTo(250.00);                   // Assert
+    }
 }
