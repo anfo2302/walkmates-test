@@ -68,22 +68,78 @@ have caught the fault during unit testing.
 
 ### Activity 2.1
 
-| Class | Input | Expected outcome |
-|-------|-------|------------------|
-|       |       |                  | 
+Email:
+
+| Class                     | Input            | Expected outcome |
+|---------------------------|------------------|------------------|
+| Invalid format @          | user.example.com | Rejected         | 
+| Invalid format .          | user@examplecom  | Rejected         | 
+| Invalid format local part | @example.com     | Rejected         | 
+| Valid format              | user@example.com | Accepted         |
+| Valid length              | user@example.com | Accepted         | 
+| Invalid length            | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<br/>aaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb<br/>bbbbbbbb.cccccccccccccccccccccccccccccccccccccccccccc<br/>ccccccccccccccccccc.dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd      | Rejected         | 
+
+Display name:
+
+| Class                | Input                                        | Expected outcome |
+|----------------------|----------------------------------------------|------------------|
+| Invalid length short | u                                            | Rejected         | 
+| Invalid length long  | useraaaaaaaaaaaaaaaaaaa<br/>aaaaaaaaaaaaaaaaaaaaa | Rejected         | 
+| Valid length         | user                                         | Accepted         | 
+| Invalid characters   | 123#@                                        | Rejected         | 
+| Valid characters     | user -'                                      | Accepted         |
+
+Phone number:
+
+| Class                              | Input         | Expected outcome |
+|------------------------------------|---------------|------------------|
+| Invalid format Swedish             | 0501234567    | Rejected         | 
+| Invalid format international       | +1231234567   | Rejected         | 
+| Valid format Swedish               | 0701234567    | Accepted         | 
+| Valid format international         | +46701234567  | Accepted         | 
+| Invalid length short Swedish       | 070123456     | Rejected         | 
+| Invalid length long Swedish        | 07012345678   | Rejected         | 
+| Invalid length short international | +4670123456   | Rejected         | 
+| Invalid length long international  | +467012345678 | Rejected         | 
+
+Wallet top-up amount:
+
+| Class                      | Input                   | Expected outcome |
+|----------------------------|-------------------------|------------------|
+| Invalid top-up amount low  | 9.0                     | Rejected         | 
+| Invalid top-up amount high | 5001.0                  | Rejected         | 
+| Valid top-up amount        | 10.0                    | Accepted         | 
+| Invalid resulting balance  | 5000.0 repeated 5 times | Rejected         | 
+| Valid resulting balance    | 10.0                    | Accepted         | 
+
+
 
 ### Activity 2.2 
 
-| Purpose | Value | Expected result |
-|---------|-------|-----------------|
-|         |       |                 | 
+| Purpose                          | Value    | Expected result |
+|----------------------------------|----------|-----------------|
+| Just below lower top-up boundary | 9.99     | Rejected        | 
+| Lower top-up boundary            | 10.00    | Accepted        | 
+| Just above lower top-up boundary | 10.01    | Accepted        | 
+| Just below upper top-up boundary | 4999.99  | Accepted        | 
+| Upper top-up boundary            | 5000.00  | Accepted        | 
+| Just above upper top-up boundary | 5000.01  | Rejected        | 
+| Just below maximum balance       | 19999.99 | Accepted        | 
+| Maximum balance                  | 20000.00 | Accepted        | 
+| Just above maximum balance       | 20000.01 | Rejected        | 
 
 ### Activity 2.3
 
 | Trust tier | Max concurrent bookings | Platform fee |
 |------------|-------------------------|--------------|
-| New        |                         |              | 
-| Verified   |       |                 | 
-|            |       |                 | 
-|            |       |                 | 
-|            |       |                 | 
+| New        | 1                       | 15%          | 
+| Verified   | 3                       | 12%          | 
+| Trusted    | 5                       | 8%           | 
+| Pro-sitter | 10                      | 5%           | 
+
+
+| Condition/action        | Rule 1 | Rule 2   | Rule 3  | Rule 4     |
+|-------------------------|--------|----------|---------|------------|
+| Trust tier              | New    | Verified | Trusted | Pro-sitter |
+| Max concurrent bookings | 1      | 3        | 5       | 10         | 
+| Platform fee            | 15%    | 12%      | 8%      | 5%         |
