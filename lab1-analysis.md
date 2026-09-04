@@ -14,9 +14,17 @@ FR-4.4 Booking creation
 
 FR-1.1 Registration - Functional suitability, interaction capability
 
+Registration must be able to validate all fields correctly and communicate the conditions and requirements for membership to the user.   
+
 FR-1.3 Wallet - Safety, security
 
+Whenever a user's money is involved it is vital that it is kept safe from unauthorized outside actors as well as from 
+internal mistakes.
+
 FR-4.4 Booking creation - Reliability, interaction capability
+
+It is important that the booking system performs reliably and clearly communicates what is needed for a successful booking
+request or why a request has been denied.
 
 #### 3.
 
