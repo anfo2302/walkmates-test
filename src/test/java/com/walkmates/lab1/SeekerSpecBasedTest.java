@@ -87,6 +87,53 @@ class SeekerSpecBasedTest {
         assertThat(seeker.getBalance()).isZero();
     }
 
+    /**
+     * Verifies that a seeker's balance (19999.99) just below maximum capacity is accepted.
+     */
+    @Test
+    @DisplayName("A resulting balance just below 20000 SEK is accepted")
+    void balanceJustBelowMaximumIsAccepted() {
+        Seeker seeker = newValidSeeker();
+        seeker.addFunds(5000.00);
+        seeker.addFunds(5000.00);
+        seeker.addFunds(5000.00);
+
+        seeker.addFunds(4999.99);
+
+        assertThat(seeker.getBalance()).isEqualTo(19999.99);
+    }
+
+    /**
+     * Verifies that a seeker's balance at the maximum capacity (20000) is accepted.
+     */
+    @Test
+    @DisplayName("A resulting balance of exactly 20000 SEK is accepted")
+    void balanceAtMaximumIsAccepted() {
+        Seeker seeker = newValidSeeker();
+
+        for (int topUp = 0; topUp < 4; topUp++) {
+            seeker.addFunds(5000.00);
+        }
+
+        assertThat(seeker.getBalance()).isEqualTo(20000.00);
+    }
+
+    /**
+     * Verifies that a seeker's balance cannot exceed the maximum capacity of 20000.
+     */
+    @Test
+    @DisplayName("A top-up producing a 20000.01 SEK balance is rejected")
+    void balanceJustAboveMaximumIsRejected() {
+        Seeker seeker = newValidSeeker();
+        seeker.addFunds(5000.00);
+        seeker.addFunds(5000.00);
+        seeker.addFunds(4990.01);
+        seeker.addFunds(10.00); // balance is now 15000.01
+
+        assertThrows(IllegalArgumentException.class, () -> seeker.addFunds(5000.00));
+        assertThat(seeker.getBalance()).isEqualTo(15000.01);
+    }
+
     // TODO (Decision table): expected fee + max-bookings for each trust tier (FR-1.2).
 
     @Test
