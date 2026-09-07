@@ -1,10 +1,15 @@
 package com.walkmates.lab1;
 
 import com.walkmates.model.Seeker;
+import com.walkmates.model.TrustTier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -135,6 +140,21 @@ class SeekerSpecBasedTest {
     }
 
     // TODO (Decision table): expected fee + max-bookings for each trust tier (FR-1.2).
+
+    /**
+     * Provides the expected decision table mappings for each {@link TrustTier} as a stream of arguments
+     * (Maximum Concurrent Bookings & Platform fee).
+     *
+     * @return a stream of trust tier mappings as arguments.
+     */
+    private static Stream<Arguments> trustTierRules() {
+        return Stream.of(
+          Arguments.of(TrustTier.NEW, 1, 0.15),
+          Arguments.of(TrustTier.VERIFIED, 3, 0.12),
+          Arguments.of(TrustTier.TRUSTED, 5, 0.08),
+          Arguments.of(TrustTier.PRO_SITTER, 10, 0.05)
+        );
+    }
 
     @Test
     @DisplayName("TODO: replace me — invalid email is rejected at registration")
