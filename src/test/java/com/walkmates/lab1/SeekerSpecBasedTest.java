@@ -142,6 +142,25 @@ class SeekerSpecBasedTest {
     // TODO (Decision table): expected fee + max-bookings for each trust tier (FR-1.2).
 
     /**
+     * Verifies that each {@link TrustTier} maps to its expected maximum concurrent bookings
+     * and platform fee according to the expected decision table.
+     *
+     * @param tier - the trust tier being tested
+     * @param maxBookings - the expected maximum concurrent bookings for the trust tier
+     * @param platformFee - the expected platform fee for the trust tier
+     */
+    @ParameterizedTest(name = "{0}: max bookings {1}, platform fee {2}")
+    @MethodSource("trustTierRules")
+    @DisplayName("Each trust tier has the decision-table limits")
+    void trustTierHasExpectedLimits(TrustTier tier, int maxBookings, double platformFee) {
+        Seeker seeker = newValidSeeker();
+        seeker.setTrustTier(tier);
+
+        assertThat(seeker.getMaxConcurrentBookings()).isEqualTo(maxBookings);
+        assertThat(seeker.getTrustTier().getPlatformFee()).isEqualTo(platformFee);
+    }
+
+    /**
      * Provides the expected decision table mappings for each {@link TrustTier} as a stream of arguments
      * (Maximum Concurrent Bookings & Platform fee).
      *
