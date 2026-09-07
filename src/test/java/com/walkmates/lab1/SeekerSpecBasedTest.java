@@ -16,6 +16,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class SeekerSpecBasedTest {
 
+    // ---- Seeker class constants ----
+    /** A valid email used for creating a {@link Seeker}. */
+    private static final String VALID_EMAIL = "user@example.com";
+    /** A valid name used for creating a {@link Seeker}. */
+    private static final String VALID_NAME = "Anna-Marie O'Neil";
+    /** A valid Swedish-format phone number used for creating a {@link Seeker}. */
+    private static final String VALID_PHONE = "0701234567";
+
     // ---- Worked example: boundary value at the maximum single top-up (FR-1.3) ----
     @Test
     @DisplayName("Top-up exactly at the 5000 SEK single-transaction maximum is accepted")
