@@ -45,7 +45,7 @@ class SeekerSpecBasedTest {
 
     // TODO (EP): one valid + one invalid equivalence class for email, name, and phone (FR-1.1).
     // TODO (BVA): just-below / at / just-above the 10.00 minimum top-up (FR-1.3).
-    // TODO (BVA): a top-up that would push the balance above 20000.00 is rejected (FR-1.3).
+    // (BVA): a top-up that would push the balance above 20000.00 is rejected (FR-1.3).
 
     /**
      * Creates a valid {@link Seeker} and verifies that its constructor does not throw an exception.
@@ -139,7 +139,7 @@ class SeekerSpecBasedTest {
         assertThat(seeker.getBalance()).isEqualTo(15000.01);
     }
 
-    // TODO (Decision table): expected fee + max-bookings for each trust tier (FR-1.2).
+    // (Decision table): expected fee + max-bookings for each trust tier (FR-1.2).
 
     /**
      * Verifies that each {@link TrustTier} maps to its expected maximum concurrent bookings
