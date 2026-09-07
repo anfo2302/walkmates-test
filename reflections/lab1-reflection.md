@@ -41,17 +41,28 @@ If you had another hour, what's the next test or risk you'd go after?
 
 ### 1. What we did
 
+We filled out the equivalence partitioning tables for FR-1.1 (email, phone number, and display name) and used ChatGPT to create 
+unit tests based on the tables. It returned two tests per table, one to assert that valid values are accepted and 
+one to ensures that invalid values are rejected. Parameterized test were used where the same behavior was tested with different input. We then evaluated the AI made tests to make sure that they covered everything and behaved as expected. 
 
 ### 2. What we found
 
+We found an error in the regex pattern for international phone numbers that we had to correct to fulfill the 
+requirement. 
 
 ### 3. AI use
 
+We used AI to produce unit tests based on our tables and evaluated what it produced. For 2.1 it created tests that covered all the necessary requirements, but it tested all the invalid classes in the same tests. 
+
+The AI did not produce anything that we suspected was wrong and since it only made simple unit tests it was fairly easy to check everything manually. The AI created a lot of parameterized tests which could make diagnosing more difficult if they are used improperly. However, when we looked at the situations in which parameterized testing was implemented we saw that it was always used to test a single behavior but with different input so we kept it.
 
 ### 4. Judgment
 
+We created all the tables manually with help of the course notes so we mainly had to determine whether the AI produced test cases were correct and had sufficient coverage. 
 
 ### 5. What we'd test next
+
+The next test
 
 ---
 <!-- Activity 2.2 and 2.3 draft -->

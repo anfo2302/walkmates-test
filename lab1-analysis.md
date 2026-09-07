@@ -77,14 +77,14 @@ Email:
 | Invalid format local part | @example.com     | Rejected         | 
 | Valid format              | user@example.com | Accepted         |
 | Valid length              | user@example.com | Accepted         | 
-| Invalid length            | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<br/>aaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb<br/>bbbbbbbb.cccccccccccccccccccccccccccccccccccccccccccc<br/>ccccccccccccccccccc.dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd      | Rejected         | 
+| Invalid length            | "a".repeat(243) + "@example.com"      | Rejected         | 
 
 Display name:
 
 | Class                | Input                                        | Expected outcome |
 |----------------------|----------------------------------------------|------------------|
 | Invalid length short | u                                            | Rejected         | 
-| Invalid length long  | useraaaaaaaaaaaaaaaaaaa<br/>aaaaaaaaaaaaaaaaaaaaa | Rejected         | 
+| Invalid length long  | "A".repeat(41) | Rejected         | 
 | Valid length         | user                                         | Accepted         | 
 | Invalid characters   | 123#@                                        | Rejected         | 
 | Valid characters     | user -'                                      | Accepted         |
