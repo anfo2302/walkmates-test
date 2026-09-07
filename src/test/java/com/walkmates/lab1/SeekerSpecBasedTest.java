@@ -3,6 +3,8 @@ package com.walkmates.lab1;
 import com.walkmates.model.Seeker;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -50,6 +52,39 @@ class SeekerSpecBasedTest {
      */
     private static Seeker newValidSeeker() {
         return assertDoesNotThrow(() -> new Seeker(VALID_EMAIL, VALID_NAME, VALID_PHONE));
+    }
+
+    /**
+     * Verifies that top-up values at valid the maximum
+     * and minimum boundaries are accepted and applied correctly.
+     *
+     * @param amount valid top-up value.
+     */
+    @ParameterizedTest(name = "Top-up {0} SEK is accepted")
+    @CsvSource({"10.00", "10.01", "4999.99", "5000.00"})
+    @DisplayName("Top-ups at valid minimum and maximum boundary values are accepted")
+    void validTopUpBoundaryValuesAreAccepted(double amount) {
+        Seeker seeker = newValidSeeker();
+
+        seeker.addFunds(amount);
+
+        assertThat(seeker.getBalance()).isEqualTo(amount);
+    }
+
+    /**
+     * Verifies that top-up values outside the maximum
+     * and minimum boundaries are rejected and do not mutate the Seeker's balance.
+     *
+     * @param amount invalid top-up value.
+     */
+    @ParameterizedTest(name = "Top-up {0} SEK is rejected")
+    @CsvSource({"9.99", "5000.01"})
+    @DisplayName("Top-ups just outside the transaction boundaries are rejected")
+    void invalidTopUpBoundaryValuesAreRejected(double amount) {
+        Seeker seeker = newValidSeeker();
+
+        assertThrows(IllegalArgumentException.class, () -> seeker.addFunds(amount));
+        assertThat(seeker.getBalance()).isZero();
     }
 
     // TODO (Decision table): expected fee + max-bookings for each trust tier (FR-1.2).
