@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -38,6 +39,19 @@ class SeekerSpecBasedTest {
     // TODO (EP): one valid + one invalid equivalence class for email, name, and phone (FR-1.1).
     // TODO (BVA): just-below / at / just-above the 10.00 minimum top-up (FR-1.3).
     // TODO (BVA): a top-up that would push the balance above 20000.00 is rejected (FR-1.3).
+
+    /**
+     * Creates a valid {@link Seeker} and verifies that its constructor does not throw an exception.
+     *
+     * <p> The {@link Seeker} is constructed with the local valid test class constants
+     * {@link #VALID_EMAIL}, {@link #VALID_NAME}, and {@link #VALID_PHONE}. </p>
+     *
+     * @return a valid new {@link Seeker} constructed with the valid test class constants.
+     */
+    private static Seeker newValidSeeker() {
+        return assertDoesNotThrow(() -> new Seeker(VALID_EMAIL, VALID_NAME, VALID_PHONE));
+    }
+
     // TODO (Decision table): expected fee + max-bookings for each trust tier (FR-1.2).
 
     @Test
