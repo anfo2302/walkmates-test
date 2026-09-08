@@ -38,6 +38,76 @@ class SeekerSpecBasedTest {
     /** A valid Swedish-format phone number used for creating a {@link Seeker}. */
     private static final String VALID_PHONE = "0701234567";
 
+    // ---- Activity 2.1: Equivalence partitioning (FR-1.1) ----
+
+    @Test
+    @DisplayName("A valid email format and length is accepted")
+    void validEmailIsAccepted() {
+        Seeker seeker = new Seeker(VALID_EMAIL, VALID_NAME, VALID_PHONE);
+
+        assertThat(seeker.getEmail()).isEqualTo(VALID_EMAIL);
+    }
+
+    @ParameterizedTest(name = "Invalid email: {0}")
+    @MethodSource("invalidEmails")
+    @DisplayName("Invalid email classes are rejected")
+    void invalidEmailIsRejected(String email) {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Seeker(email, VALID_NAME, VALID_PHONE));
+    }
+
+    private static Stream<String> invalidEmails() {
+        return Stream.of(
+                "user.example.com",                    // missing @
+                "user@examplecom",                     // domain has no dot
+                "@example.com",                        // empty local part
+                "a".repeat(255) + "@example.com"       // 255 characters; maximum is 254
+        );
+    }
+
+    @ParameterizedTest(name = "Valid display name: {0}")
+    @ValueSource(strings = {"Anna", "Anna-Marie O'Neil"})
+    @DisplayName("Valid display-name classes are accepted")
+    void validDisplayNameIsAccepted(String displayName) {
+        Seeker seeker = new Seeker(VALID_EMAIL, displayName, VALID_PHONE);
+
+        assertThat(seeker.getDisplayName()).isEqualTo(displayName);
+    }
+
+    @ParameterizedTest(name = "Invalid display name: {0}")
+    @MethodSource("invalidDisplayNames")
+    @DisplayName("Invalid display-name classes are rejected")
+    void invalidDisplayNameIsRejected(String displayName) {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Seeker(VALID_EMAIL, displayName, VALID_PHONE));
+    }
+
+    private static Stream<String> invalidDisplayNames() {
+        return Stream.of(
+                "A",                  // shorter than 2 characters
+                "A".repeat(41),       // longer than 40 characters
+                "Anna123#@"           // characters outside the valid class
+        );
+    }
+
+    @ParameterizedTest(name = "Valid phone number: {0}")
+    @ValueSource(strings = {"0701234567", "+46701234567"})
+    @DisplayName("Valid Swedish and international phone formats are accepted")
+    void validPhoneNumberIsAccepted(String phoneNumber) {
+        Seeker seeker = new Seeker(VALID_EMAIL, VALID_NAME, phoneNumber);
+
+        assertThat(seeker.getPhoneNumber()).isEqualTo(phoneNumber);
+    }
+
+    @ParameterizedTest(name = "Invalid phone number: {0}")
+    @ValueSource(strings = {"0501234567", "+1231234567", "070123456", "07012345678",
+            "+4670123456", "+467012345678"})
+    @DisplayName("Invalid phone-format and length classes are rejected")
+    void invalidPhoneNumberIsRejected(String phoneNumber) {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Seeker(VALID_EMAIL, VALID_NAME, phoneNumber));
+    }
+
     // ---- Worked example: boundary value at the maximum single top-up (FR-1.3) ----
     @Test
     @DisplayName("Top-up exactly at the 5000 SEK single-transaction maximum is accepted")
@@ -195,80 +265,5 @@ class SeekerSpecBasedTest {
         Seeker seeker = new Seeker("you@example.com", "You", "0701234567");  // Arrange
         seeker.addFunds(250.00);                                              // Act
         assertThat(seeker.getBalance()).isEqualTo(250.00);                   // Assert
-    }
-
-
-    private static final String VALID_EMAIL = "user@example.com";
-    private static final String VALID_NAME = "Anna-Marie O'Neil";
-    private static final String VALID_PHONE = "0701234567";
-
-    // ---- Activity 2.1: Equivalence partitioning (FR-1.1) ----
-
-    @Test
-    @DisplayName("A valid email format and length is accepted")
-    void validEmailIsAccepted() {
-        Seeker seeker = new Seeker(VALID_EMAIL, VALID_NAME, VALID_PHONE);
-
-        assertThat(seeker.getEmail()).isEqualTo(VALID_EMAIL);
-    }
-
-    @ParameterizedTest(name = "Invalid email: {0}")
-    @MethodSource("invalidEmails")
-    @DisplayName("Invalid email classes are rejected")
-    void invalidEmailIsRejected(String email) {
-        assertThrows(IllegalArgumentException.class,
-                () -> new Seeker(email, VALID_NAME, VALID_PHONE));
-    }
-
-    private static Stream<String> invalidEmails() {
-        return Stream.of(
-                "user.example.com",                    // missing @
-                "user@examplecom",                     // domain has no dot
-                "@example.com",                        // empty local part
-                "a".repeat(24) + "@example.com"       // 255 characters; maximum is 254
-        );
-    }
-
-    @ParameterizedTest(name = "Valid display name: {0}")
-    @ValueSource(strings = {"Anna", "Anna-Marie O'Neil"})
-    @DisplayName("Valid display-name classes are accepted")
-    void validDisplayNameIsAccepted(String displayName) {
-        Seeker seeker = new Seeker(VALID_EMAIL, displayName, VALID_PHONE);
-
-        assertThat(seeker.getDisplayName()).isEqualTo(displayName);
-    }
-
-    @ParameterizedTest(name = "Invalid display name: {0}")
-    @MethodSource("invalidDisplayNames")
-    @DisplayName("Invalid display-name classes are rejected")
-    void invalidDisplayNameIsRejected(String displayName) {
-        assertThrows(IllegalArgumentException.class,
-                () -> new Seeker(VALID_EMAIL, displayName, VALID_PHONE));
-    }
-
-    private static Stream<String> invalidDisplayNames() {
-        return Stream.of(
-                "A",                  // shorter than 2 characters
-                "A".repeat(41),       // longer than 40 characters
-                "Anna123#@"           // characters outside the valid class
-        );
-    }
-
-    @ParameterizedTest(name = "Valid phone number: {0}")
-    @ValueSource(strings = {"0701234567", "+46701234567"})
-    @DisplayName("Valid Swedish and international phone formats are accepted")
-    void validPhoneNumberIsAccepted(String phoneNumber) {
-        Seeker seeker = new Seeker(VALID_EMAIL, VALID_NAME, phoneNumber);
-
-        assertThat(seeker.getPhoneNumber()).isEqualTo(phoneNumber);
-    }
-
-    @ParameterizedTest(name = "Invalid phone number: {0}")
-    @ValueSource(strings = {"0501234567", "+1231234567", "070123456", "07012345678",
-            "+4670123456", "+467012345678"})
-    @DisplayName("Invalid phone-format and length classes are rejected")
-    void invalidPhoneNumberIsRejected(String phoneNumber) {
-        assertThrows(IllegalArgumentException.class,
-                () -> new Seeker(VALID_EMAIL, VALID_NAME, phoneNumber));
     }
 }
