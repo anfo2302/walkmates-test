@@ -119,10 +119,6 @@ class SeekerSpecBasedTest {
         assertThat(seeker.getBalance()).isEqualTo(Seeker.MAX_SINGLE_TOP_UP);
     }
 
-    // TODO (EP): one valid + one invalid equivalence class for email, name, and phone (FR-1.1).
-    // TODO (BVA): just-below / at / just-above the 10.00 minimum top-up (FR-1.3).
-    // (BVA): a top-up that would push the balance above 20000.00 is rejected (FR-1.3).
-
     /**
      * Creates a valid {@link Seeker} and verifies that its constructor does not throw an exception.
      *
@@ -251,13 +247,6 @@ class SeekerSpecBasedTest {
         );
     }
 
-    @Test
-    @DisplayName("TODO: replace me — invalid email is rejected at registration")
-    void invalidEmailIsRejected() {
-        // Example of the shape; expand into your full EP set.
-        assertThrows(IllegalArgumentException.class,
-                () -> new Seeker("not-an-email", "Sam", "0707654321"));
-    }
 
     @Test
     @DisplayName("Adding 250 SEK to a new seeker gives a 250.00 balance")

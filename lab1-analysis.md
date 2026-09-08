@@ -81,13 +81,13 @@ Email:
 
 Display name:
 
-| Class                | Input                                        | Expected outcome |
-|----------------------|----------------------------------------------|------------------|
-| Invalid length short | u                                            | Rejected         | 
+| Class                | Input          | Expected outcome |
+|----------------------|----------------|------------------|
+| Invalid length short | A              | Rejected         | 
 | Invalid length long  | "A".repeat(41) | Rejected         | 
-| Valid length         | user                                         | Accepted         | 
-| Invalid characters   | 123#@                                        | Rejected         | 
-| Valid characters     | user -'                                      | Accepted         |
+| Valid length         | user           | Accepted         | 
+| Invalid characters   | Anna123#@          | Rejected         | 
+| Valid characters     | Anna-Marie O'Neil        | Accepted         |
 
 Phone number:
 
