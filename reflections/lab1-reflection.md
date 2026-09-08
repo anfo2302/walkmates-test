@@ -7,7 +7,7 @@
 
 ## 1. What we did
 
-We produced the artefact [lab1-analysis.md](../lab1-analysis.md) together during a Teams call.  
+We produced the artefact [lab1-analysis.md](https://github.com/anfo2302/walkmates-test/blob/lab1/reflections/lab1-reflection.md) together during a Teams call.  
 All information was gathered from the module 1 study material, specifically
 [Software Testing Course Notes M1: Quality Assurance and Fundamentals](https://sergiorico.github.io/software-testing-course-notes/M1-Quality-Assurance-Fundamentals/).
 We chose to create this artefact ourselves.
@@ -45,7 +45,7 @@ In summary, Free Copilot said:
 After which it repeated the same explanation several times in a slightly different way.
 
 We also experimented with using AI to generate the tests based on our
-[lab1-analysis.md](../lab1-analysis.md) decision tables.
+[lab1-analysis.md](https://github.com/anfo2302/walkmates-test/blob/lab1/reflections/lab1-reflection.md) decision tables.
 The AI produced structurally correct tests, but we did not trust them blindly.
 We manually double-checked each suggestion against our decision tables,
 and did not include any code we did not understand.
@@ -56,7 +56,7 @@ used to test a single behaviour but with different input so we kept it.
 
 ## 4. Judgment
 
-We didn't trust AI with test coverage, as mentioned above, we created the [lab1-analysis.md](../lab1-analysis.md)
+We didn't trust AI with test coverage, as mentioned above, we created the [lab1-analysis.md](https://github.com/anfo2302/walkmates-test/blob/lab1/reflections/lab1-reflection.md)
 artefact ourselves because of this.
 
 We verified whether it was considered best practise to put test constants at the top of the test class by googling,
