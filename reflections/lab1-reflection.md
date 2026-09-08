@@ -2,70 +2,8 @@
 
 **Lab:** 1  
 **Pair:** Anna Forslund & Andreas Wallgren  
-**Repo commit/tag:** (link — Labs 1–3; write `N/A` for Lab 4)  
+**Repo commit/tag:** [Lab 1 branch](https://github.com/anfo2302/walkmates-test/tree/lab1)
 ---
-
----
-
-## Reflection Template
-
-> Keep it **short and specific** — this is graded for *understanding*, not length.
-> Half a page to a page is plenty. Bullet points are fine.
-
-### 1. What we did
-A few sentences: which tests/artefacts you produced and why those, against which requirements
-(cite rule IDs, e.g. FR-1.3, FR-4.4).
-
-### 2. What we found
-The most interesting thing you learned or uncovered — a boundary bug, a surviving mutant, a
-covered-but-buggy path, a fallback that didn't behave, a metamorphic relation that broke.
-
-### 3. AI use (be honest — it doesn't lower your grade)
-- What did you use AI for in this lab?
-- **What did the AI suggest vs. what you kept or changed — and why?** (the key question)
-- Anything the AI produced that you suspected was wrong or weak? How did you check?
-
-We used AI in part A of the lab to interpret the questions, mainly 1.1.3 where we were unsure what was expected.  
-We got different suggestions 
-
-### 4. Judgment
-Where did *you* have to decide something the tools/AI couldn't decide for you? (e.g. which
-equivalence classes matter, whether coverage was "enough", whether a mutant was equivalent.)
-
-### 5. What we'd test next
-If you had another hour, what's the next test or risk you'd go after?
-
----
-
-## Activity 2.1
-
-### 1. What we did
-
-We filled out the equivalence partitioning tables for FR-1.1 (email, phone number, and display name) and used ChatGPT to create 
-unit tests based on the tables. It returned two tests per table, one to assert that valid values are accepted and 
-one to ensures that invalid values are rejected. Parameterized test were used where the same behavior was tested with different input. We then evaluated the AI made tests to make sure that they covered everything and behaved as expected. 
-
-### 2. What we found
-
-We found an error in the regex pattern for international phone numbers that we had to correct to fulfill the 
-requirement. 
-
-### 3. AI use
-
-We used AI to produce unit tests based on our tables and evaluated what it produced. For 2.1 it created tests that covered all the necessary requirements, but it tested all the invalid classes in the same tests. 
-
-The AI did not produce anything that we suspected was wrong and since it only made simple unit tests it was fairly easy to check everything manually. The AI created a lot of parameterized tests which could make diagnosing more difficult if they are used improperly. However, when we looked at the situations in which parameterized testing was implemented we saw that it was always used to test a single behavior but with different input so we kept it.
-
-### 4. Judgment
-
-We created all the tables manually with help of the course notes so we mainly had to determine whether the AI produced test cases were correct and had sufficient coverage. 
-
-### 5. What we'd test next
-
-The next test
-
----
-<!-- Activity 2.2 and 2.3 draft -->
 
 ## 1. What we did
 
@@ -76,12 +14,22 @@ We chose to create this artefact ourselves.
 We meant to ensure that the test coverage aligned precisely with the Lab instructions,
 and to deepen our understanding of the module content by discussing the concepts collaboratively while writing.
 
+We then used ChatGPT to create unit tests based on the tables.
+It returned two tests per table, one to assert that valid values are accepted and
+one to ensures that invalid values are rejected.
+Parameterized test were used where the same behaviour was tested with different input.
+We then evaluated the AI made tests to make sure that they covered everything and behaved as expected.
+
 ## 2. What we found
 
+We found an error in the regex pattern for international phone numbers that we had to correct to fulfill the
+requirement.
+
+In a real project, we would rely on a mature and RFC-compliant email-validation library rather than
+re-implementing the rules ourselves. However, since this lab focuses on learning how to design and write tests,
+we chose to follow the simplified FR-1.1 requirements.
+
 ## 3. AI use (be honest — it doesn't lower your grade)
-- What did you use AI for in this lab?
-- **What did the AI suggest vs. what you kept or changed — and why?** (the key question)
-- Anything the AI produced that you suspected was wrong or weak? How did you check?
 
 We used AI in part A of the lab to interpret the questions, mainly Activity 1.1 list-question 3,
 because we were not sure what was meant by "quality *requirement*", thus unsure of what was expected.
@@ -100,23 +48,36 @@ We also experimented with using AI to generate the tests based on our
 [lab1-analysis.md](../lab1-analysis.md) decision tables.
 The AI produced structurally correct tests, but we did not trust them blindly.
 We manually double-checked each suggestion against our decision tables,
-and did not include any code we do not understand.
+and did not include any code we did not understand.
+
+The AI created a lot of parameterised tests which could make diagnosing more difficult if they are used improperly.
+However, when we looked at the situations in which parameterised testing was implemented we saw that it was always
+used to test a single behaviour but with different input so we kept it.
 
 ## 4. Judgment
-Where did *you* have to decide something the tools/AI couldn't decide for you? (e.g. which
-equivalence classes matter, whether coverage was "enough", whether a mutant was equivalent.)
 
 We didn't trust AI with test coverage, as mentioned above, we created the [lab1-analysis.md](../lab1-analysis.md)
 artefact ourselves because of this.
 
 We verified whether it was considered best practise to put test constants at the top of the test class by googling,
 people in a programming sub-reddit, and a Kotlin forum said; it is a bit of a "Religion" (preference based).
-So, since they are constants meant for only this test class, we agreed with AI and decided that keeping them up top
+So, since they are constants meant for only this test class,
+we agreed with AI and decided that keeping them up top
 for reusability and editability makes a lot of sense. Thus, it was kept as AI produced it.
 
-## 5. What we'd test next
-Question: If you had another hour, what's the next test or risk you'd go after?
+The AI generated tests where all invalid options were evaluated in a single test for each subtask,
+meaning that testing display names with invalid length and format was performed in the same test.
+We discussed whether to separate those tests further to match the tables more closely or to keep the structure
+as the test logic and behaviour were very similar. We decided to keep the tests unchanged as the TODO in the
+test file also stated that there should be one valid and one invalid equivalence class for email, name and, phone.
 
-Add addFunds test to confirm that balance only updates within two decimal places.
-Add addFunds test which tests two decimal rounding behaviour.
-Add test to confirm that addFunds reject negative values.
+## 5. What we'd test next
+
+Add test that confirms a new `Seeker` starts with `NEW` as initial trust tier.
+
+Add `addFunds` test to confirm that balance only updates within two decimal places.
+Add `addFunds` test which tests two decimal rounding behaviour.
+Add test to confirm that `addFunds` reject negative values.
+
+Add tests for `charge` behaviour similar to the FR-1.3 rules, since this is another public seeker method
+that can mutate the seeker's balance.
