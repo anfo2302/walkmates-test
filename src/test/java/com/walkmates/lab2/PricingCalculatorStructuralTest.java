@@ -47,6 +47,16 @@ class PricingCalculatorStructuralTest {
 
     // (branch): a free SHELTER_VOLUNTEER listing always costs 0.00.
 
+    /**
+     * Verifies that the free-listing branch for {@link ListingType#SHELTER_VOLUNTEER}
+     * bypasses all pricing logic (overnight surcharge and trust tier platform fee)
+     * and always returns 0.00.
+     *
+     * <p>
+     *   A duration above the overnight threshold is used to confirm that
+     *   the surcharge is not applied when the listing type is {@link ListingType#SHELTER_VOLUNTEER}.
+     * </p>
+     */
     @Test
     @DisplayName("A SHELTER_VOLUNTEER booking is free")
     void shelterVolunteerListingIsFree() {
@@ -62,6 +72,12 @@ class PricingCalculatorStructuralTest {
 
     // (branch): a clearly-overnight booking (e.g. 600 min) includes the 20% surcharge.
 
+    /**
+     * Verifies that bookings strictly greater than 480 minutes
+     * add a 20% surcharge before the platform fee is applied.
+     *
+     * <p><i>This test uses a clearly overnight duration of 600 minutes to exercise the branch.</i></p>
+     */
     @Test
     @DisplayName("600 min DOG_WALK includes the 20% overnight surcharge")
     void overnightBookingIncludesSurcharge() {
@@ -83,6 +99,9 @@ class PricingCalculatorStructuralTest {
     // (BOUNDARY — this is the interesting one): a booking of exactly 480 minutes must NOT
     //      be surcharged (FR-4.3 says strictly > 480). Write this test and see what happens.
 
+    /**
+     * Verifies that a booking of <i>exactly 480 minutes</i> is not charged the 20% overnight surcharge.
+     */
     @Test
     @DisplayName("Exactly 480 min does not include the overnight surcharge")
     void bookingAtOvernightBoundaryDoesNotIncludeSurcharge() {
@@ -102,6 +121,9 @@ class PricingCalculatorStructuralTest {
 
     // (Exception): null booking, listing, or seeker throws IllegalArgumentException
 
+    /**
+     * Verifies that a {@code null} {@link Booking} causes a {@link IllegalArgumentException}.
+     */
     @Test
     @DisplayName("A null booking is rejected")
     void nullBookingIsRejected() {
@@ -113,6 +135,9 @@ class PricingCalculatorStructuralTest {
                 .hasMessage("Booking, listing and seeker are all required");
     }
 
+    /**
+     * Verifies that a {@code null} {@link Listing} causes a {@link IllegalArgumentException}.
+     */
     @Test
     @DisplayName("A null listing is rejected")
     void nullListingIsRejected() {
@@ -124,6 +149,9 @@ class PricingCalculatorStructuralTest {
                 .hasMessage("Booking, listing and seeker are all required");
     }
 
+    /**
+     * Verifies that a {@code null} {@link Seeker} causes a {@link IllegalArgumentException}.
+     */
     @Test
     @DisplayName("A null seeker is rejected")
     void nullSeekerIsRejected() {
