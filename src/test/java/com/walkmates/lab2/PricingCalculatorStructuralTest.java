@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Lab 2, Part A — structural testing for {@link PricingCalculator} (FR-4.3).
@@ -48,4 +49,85 @@ class PricingCalculatorStructuralTest {
     // TODO (branch): a clearly-overnight booking (e.g. 600 min) includes the 20% surcharge.
     // TODO (BOUNDARY — this is the interesting one): a booking of exactly 480 minutes must NOT
     //      be surcharged (FR-4.3 says strictly > 480). Write this test and see what happens.
+
+    @Test
+    @DisplayName("A SHELTER_VOLUNTEER booking is free")
+    void shelterVolunteerListingIsFree() {
+        Booking booking = new Booking("seeker-1", "listing-1", 600);
+
+        double price = pricing.priceFor(
+                booking,
+                listing(ListingType.SHELTER_VOLUNTEER),
+                seeker(TrustTier.VERIFIED));
+
+        assertThat(price).isEqualTo(0.00);
+    }
+
+    @Test
+    @DisplayName("600 min DOG_WALK includes the 20% overnight surcharge")
+    void overnightBookingIncludesSurcharge() {
+        Booking booking = new Booking("seeker-1", "listing-1", 600);
+
+        double price = pricing.priceFor(
+                booking,
+                listing(ListingType.DOG_WALK),
+                seeker(TrustTier.VERIFIED));
+
+        // 10 hours × 80 = 800
+        // 20% overnight surcharge = 160
+        // Subtotal = 960
+        // 12% platform fee = 115.20
+        // Total = 1075.20
+        assertThat(price).isEqualTo(1075.20);
+    }
+
+    @Test
+    @DisplayName("Exactly 480 min does not include the overnight surcharge")
+    void bookingAtOvernightBoundaryDoesNotIncludeSurcharge() {
+        Booking booking = new Booking("seeker-1", "listing-1", 480);
+
+        double price = pricing.priceFor(
+                booking,
+                listing(ListingType.DOG_WALK),
+                seeker(TrustTier.VERIFIED));
+
+        // 8 hours × 80 = 640
+        // No overnight surcharge
+        // 12% platform fee = 76.80
+        // Total = 716.80
+        assertThat(price).isEqualTo(716.80);
+    }
+
+    @Test
+    @DisplayName("A null booking is rejected")
+    void nullBookingIsRejected() {
+        Listing listing = listing(ListingType.DOG_WALK);
+        Seeker seeker = seeker(TrustTier.VERIFIED);
+
+        assertThatThrownBy(() -> pricing.priceFor(null, listing, seeker))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Booking, listing and seeker are all required");
+    }
+
+    @Test
+    @DisplayName("A null listing is rejected")
+    void nullListingIsRejected() {
+        Booking booking = new Booking("seeker-1", "listing-1", 60);
+        Seeker seeker = seeker(TrustTier.VERIFIED);
+
+        assertThatThrownBy(() -> pricing.priceFor(booking, null, seeker))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Booking, listing and seeker are all required");
+    }
+
+    @Test
+    @DisplayName("A null seeker is rejected")
+    void nullSeekerIsRejected() {
+        Booking booking = new Booking("seeker-1", "listing-1", 60);
+        Listing listing = listing(ListingType.DOG_WALK);
+
+        assertThatThrownBy(() -> pricing.priceFor(booking, listing, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Booking, listing and seeker are all required");
+    }
 }
