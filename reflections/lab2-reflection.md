@@ -27,3 +27,4 @@ equivalence classes matter, whether coverage was "enough", whether a mutant was 
 If you had another hour, what's the next test or risk you'd go after?
 
 ---
+### [Lab 2 Regression Selection Analysis](../lab2-regression-selection.md)
