@@ -20,6 +20,23 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for {@link SeekerService}, covering the wallet top-up workflow defined by
+ * {@link SeekerService#topUp(String, String, double)}.
+ *
+ * <p>
+ *   The tests exercise the service's interaction with the payment gateway
+ *   and verifies both the success- and failure-paths:
+ *   <i>successful payment, declined payment, payment gateway timeout</i>.
+ * </p>
+ *
+ * <p>
+ *   Dependencies ({@link SeekerRepository}, and {@link PaymentService},
+ *   are mocked via Mockito's{@link org.mockito.junit.jupiter.MockitoExtension}
+ *   so that {@link SeekerService} is tested in isolation from persistence,
+ *   payment, and notification infrastructure.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class SeekerServiceTest {
 
@@ -32,6 +49,11 @@ class SeekerServiceTest {
     @InjectMocks
     private SeekerService seekerService;
 
+    /**
+     * Verifies the success path of {@link SeekerService#topUp(String, String, double)}:
+     * a successful charge from {@link PaymentService} must credit the {@link Seeker}'s wallet
+     * and persist the updated {@link Seeker}.
+     */
     @Test
     @DisplayName("Successful payment credits the Seeker wallet")
     void successfulPaymentCreditsWallet() throws PaymentService.PaymentException {
@@ -64,6 +86,13 @@ class SeekerServiceTest {
         verify(seekerRepository).save(seeker);
     }
 
+    /**
+     * Verifies that when the payment gateway declines the charge,
+     * the {@link SeekerService#topUp(String, String, double)} call propagates
+     * the {@link PaymentService.PaymentException}
+     * and leaves the {@link Seeker}'s wallet untouched.
+     * <i>The balance remains zero and no {@link SeekerRepository#save(Seeker)} is attempted</i>.
+     */
     @Test
     @DisplayName("Declined payment does not credit the Seeker wallet")
     void declinedPaymentDoesNotCreditWallet() throws PaymentService.PaymentException {
@@ -88,6 +117,11 @@ class SeekerServiceTest {
         verify(seekerRepository, never()).save(any(Seeker.class));
     }
 
+    /**
+     * Verifies that a payment gateway timeout propagates the
+     * {@link PaymentService.PaymentTimeoutException} to the caller,
+     * leaves the {@link Seeker}'s wallet untouched, and does not persist the {@link Seeker}.
+     */
     @Test
     @DisplayName("Payment timeout does not credit the Seeker wallet")
     void paymentTimeoutDoesNotCreditWallet() throws PaymentService.PaymentException {

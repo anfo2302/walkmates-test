@@ -30,6 +30,26 @@ import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests for {@link BookingService}, covering the booking creation workflow defined by:
+ * {@link BookingService#createBooking(String, String, int)}.
+ *
+ * <p>
+ *   The success path test verifies that a booking is created end-to-end
+ *   with the current side effects across the collaborating components.
+ * </p>
+ *
+ * <p>
+ *   Dependencies ({@link SeekerRepository}, {@link ListingRepository},
+ *   {@link ProviderRepository}, {@link BookingRepository}, {@link PricingCalculator},
+ *   and {@link NotificationService}) are mocked via Mockito's
+ *   {@link org.mockito.junit.jupiter.MockitoExtension},
+ *   so {@link BookingService} is tested in isolation from persistence,
+ *   pricing, and notification infrastructure.
+ *   {@link PricingCalculator} is stubbed to return a fixed price,
+ *   decoupling these tests from the pricing rules.
+ * </p>
+ */
 @ExtendWith(MockitoExtension.class)
 class BookingServiceTest {
 
@@ -54,6 +74,16 @@ class BookingServiceTest {
     @InjectMocks
     private BookingService bookingService;
 
+    /**
+     * Verifies the success path of {@link BookingService#createBooking(String, String, int)}:
+     * a booking is created with {@link BookingStatus#CONFIRMED} status
+     * and the price returned by {@link PricingCalculator},
+     * the {@link Seeker}'s wallet is charged,
+     * the {@link Listing} becomes {@link ListingStatus#BOOKED},
+     * all three entities are persisted
+     * ({@link BookingRepository}, {@link ListingRepository}, {@link SeekerRepository}),
+     * and a confirmation notification is sent.
+     */
     @Test
     @DisplayName("Successful booking sends a confirmation notification")
     void successfulBookingSendsConfirmationNotification() {
