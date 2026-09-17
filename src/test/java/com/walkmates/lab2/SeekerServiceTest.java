@@ -25,13 +25,13 @@ import static org.mockito.Mockito.when;
 class SeekerServiceTest {
 
     @Mock
-    private SeekerRepository seekers;
+    private SeekerRepository seekerRepository;
 
     @Mock
-    private PaymentService payments;
+    private PaymentService paymentService;
 
     @Mock
-    private NotificationService notifications;
+    private NotificationService notificationService;
 
     @InjectMocks
     private SeekerService seekerService;
@@ -44,11 +44,11 @@ class SeekerServiceTest {
         Seeker seeker =
                 new Seeker("pat@example.com", "Pat", "0701112233");
 
-        when(seekers.findById("seeker-1"))
+        when(seekerRepository.findById("seeker-1"))
                 .thenReturn(Optional.of(seeker));
-        when(payments.charge("seeker-1", "payment-method-1", 250.00))
+        when(paymentService.charge("seeker-1", "payment-method-1", 250.00))
                 .thenReturn("payment-confirmation-1");
-        when(seekers.save(any(Seeker.class)))
+        when(seekerRepository.save(any(Seeker.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         Seeker updatedSeeker =
@@ -59,9 +59,9 @@ class SeekerServiceTest {
 
         assertThat(updatedSeeker.getBalance()).isEqualTo(250.00);
 
-        verify(payments)
+        verify(paymentService)
                 .charge("seeker-1", "payment-method-1", 250.00);
-        verify(seekers).save(seeker);
+        verify(seekerRepository).save(seeker);
     }
 
     @Test
@@ -72,9 +72,9 @@ class SeekerServiceTest {
         Seeker seeker =
                 new Seeker("pat@example.com", "Pat", "0701112233");
 
-        when(seekers.findById("seeker-1"))
+        when(seekerRepository.findById("seeker-1"))
                 .thenReturn(Optional.of(seeker));
-        when(payments.charge("seeker-1", "payment-method-1", 250.00))
+        when(paymentService.charge("seeker-1", "payment-method-1", 250.00))
                 .thenThrow(new PaymentService.PaymentException(
                         "Payment declined"));
 
@@ -87,7 +87,7 @@ class SeekerServiceTest {
                 .hasMessage("Payment declined");
 
         assertThat(seeker.getBalance()).isZero();
-        verify(seekers, never()).save(any(Seeker.class));
+        verify(seekerRepository, never()).save(any(Seeker.class));
     }
 
     @Test
@@ -98,9 +98,9 @@ class SeekerServiceTest {
         Seeker seeker =
                 new Seeker("pat@example.com", "Pat", "0701112233");
 
-        when(seekers.findById("seeker-1"))
+        when(seekerRepository.findById("seeker-1"))
                 .thenReturn(Optional.of(seeker));
-        when(payments.charge("seeker-1", "payment-method-1", 250.00))
+        when(paymentService.charge("seeker-1", "payment-method-1", 250.00))
                 .thenThrow(new PaymentService.PaymentTimeoutException(
                         "Payment gateway timed out"));
 
@@ -113,6 +113,6 @@ class SeekerServiceTest {
                 .hasMessage("Payment gateway timed out");
 
         assertThat(seeker.getBalance()).isZero();
-        verify(seekers, never()).save(any(Seeker.class));
+        verify(seekerRepository, never()).save(any(Seeker.class));
     }
 }

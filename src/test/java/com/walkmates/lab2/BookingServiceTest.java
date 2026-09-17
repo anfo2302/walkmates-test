@@ -34,22 +34,22 @@ import static org.mockito.Mockito.when;
 class BookingServiceTest {
 
     @Mock
-    private SeekerRepository seekers;
+    private SeekerRepository seekerRepository;
 
     @Mock
-    private ListingRepository listings;
+    private ListingRepository listingRepository;
 
     @Mock
-    private ProviderRepository providers;
+    private ProviderRepository providerRepository;
 
     @Mock
-    private BookingRepository bookings;
+    private BookingRepository bookingRepository;
 
     @Mock
-    private PricingCalculator pricing;
+    private PricingCalculator pricingCalculator;
 
     @Mock
-    private NotificationService notifications;
+    private NotificationService notificationService;
 
     @InjectMocks
     private BookingService bookingService;
@@ -70,32 +70,32 @@ class BookingServiceTest {
                 "A one-hour dog walk",
                 ListingType.DOG_WALK);
 
-        when(seekers.findById("seeker-1"))
+        when(seekerRepository.findById("seeker-1"))
                 .thenReturn(Optional.of(seeker));
-        when(listings.findById(listing.getId()))
+        when(listingRepository.findById(listing.getId()))
                 .thenReturn(Optional.of(listing));
 
         // The Seeker currently has no active bookings.
-        when(bookings.findBySeekerId("seeker-1"))
+        when(bookingRepository.findBySeekerId("seeker-1"))
                 .thenReturn(List.of());
 
-        when(providers.findById(provider.getId()))
+        when(providerRepository.findById(provider.getId()))
                 .thenReturn(Optional.of(provider));
 
         // The Provider currently has no active bookings.
-        when(listings.findByProviderId(provider.getId()))
+        when(listingRepository.findByProviderId(provider.getId()))
                 .thenReturn(List.of(listing));
-        when(bookings.findByListingId(listing.getId()))
+        when(bookingRepository.findByListingId(listing.getId()))
                 .thenReturn(List.of());
 
         // PricingCalculator is mocked so BookingService is tested in isolation.
-        when(pricing.priceFor(
+        when(pricingCalculator.priceFor(
                 any(Booking.class),
                 same(listing),
                 same(seeker)))
                 .thenReturn(100.00);
 
-        when(bookings.save(any(Booking.class)))
+        when(bookingRepository.save(any(Booking.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         Booking result = bookingService.createBooking(
@@ -112,11 +112,11 @@ class BookingServiceTest {
         assertThat(listing.getStatus())
                 .isEqualTo(ListingStatus.BOOKED);
 
-        verify(seekers).save(seeker);
-        verify(listings).save(listing);
-        verify(bookings).save(result);
+        verify(seekerRepository).save(seeker);
+        verify(listingRepository).save(listing);
+        verify(bookingRepository).save(result);
 
-        verify(notifications)
+        verify(notificationService)
                 .sendBookingConfirmed(seeker, result);
     }
 }
