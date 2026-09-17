@@ -57,66 +57,54 @@ class BookingServiceTest {
     @Test
     @DisplayName("Successful booking sends a confirmation notification")
     void successfulBookingSendsConfirmationNotification() {
-        Seeker seeker =
-                new Seeker("pat@example.com", "Pat", "0701112233");
+        Seeker seeker = new Seeker("pat@example.com", "Pat", "0701112233");
         seeker.addFunds(500.00);
 
-        Provider provider =
-                new Provider("Animal owner", 62.39, 17.31);
+        Provider provider = new Provider("Animal owner", 62.39, 17.31);
 
         Listing listing = new Listing(
-                provider.getId(),
-                "Walk the dog",
-                "A one-hour dog walk",
-                ListingType.DOG_WALK);
+          provider.getId(),
+          "Walk the dog",
+          "A one-hour dog walk",
+          ListingType.DOG_WALK);
 
-        when(seekerRepository.findById("seeker-1"))
-                .thenReturn(Optional.of(seeker));
-        when(listingRepository.findById(listing.getId()))
-                .thenReturn(Optional.of(listing));
+        when(seekerRepository.findById("seeker-1")).thenReturn(Optional.of(seeker));
+        when(listingRepository.findById(listing.getId())).thenReturn(Optional.of(listing));
 
         // The Seeker currently has no active bookings.
-        when(bookingRepository.findBySeekerId("seeker-1"))
-                .thenReturn(List.of());
+        when(bookingRepository.findBySeekerId("seeker-1")).thenReturn(List.of());
 
-        when(providerRepository.findById(provider.getId()))
-                .thenReturn(Optional.of(provider));
+        when(providerRepository.findById(provider.getId())).thenReturn(Optional.of(provider));
 
         // The Provider currently has no active bookings.
-        when(listingRepository.findByProviderId(provider.getId()))
-                .thenReturn(List.of(listing));
-        when(bookingRepository.findByListingId(listing.getId()))
-                .thenReturn(List.of());
+        when(listingRepository.findByProviderId(provider.getId())).thenReturn(List.of(listing));
+        when(bookingRepository.findByListingId(listing.getId())).thenReturn(List.of());
 
         // PricingCalculator is mocked so BookingService is tested in isolation.
         when(pricingCalculator.priceFor(
-                any(Booking.class),
-                same(listing),
-                same(seeker)))
-                .thenReturn(100.00);
+          any(Booking.class),
+          same(listing),
+          same(seeker))
+        ).thenReturn(100.00);
 
-        when(bookingRepository.save(any(Booking.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(
+          invocation -> invocation.getArgument(0)
+        );
 
         Booking result = bookingService.createBooking(
-                "seeker-1",
-                listing.getId(),
-                60);
+          "seeker-1",
+          listing.getId(),
+          60);
 
-        assertThat(result.getStatus())
-                .isEqualTo(BookingStatus.CONFIRMED);
-        assertThat(result.getPrice())
-                .isEqualTo(100.00);
-        assertThat(seeker.getBalance())
-                .isEqualTo(400.00);
-        assertThat(listing.getStatus())
-                .isEqualTo(ListingStatus.BOOKED);
+        assertThat(result.getStatus()).isEqualTo(BookingStatus.CONFIRMED);
+        assertThat(result.getPrice()).isEqualTo(100.00);
+        assertThat(seeker.getBalance()).isEqualTo(400.00);
+        assertThat(listing.getStatus()).isEqualTo(ListingStatus.BOOKED);
 
         verify(seekerRepository).save(seeker);
         verify(listingRepository).save(listing);
         verify(bookingRepository).save(result);
 
-        verify(notificationService)
-                .sendBookingConfirmed(seeker, result);
+        verify(notificationService).sendBookingConfirmed(seeker, result);
     }
 }
