@@ -30,9 +30,6 @@ class SeekerServiceTest {
     @Mock
     private PaymentService paymentService;
 
-    @Mock
-    private NotificationService notificationService;
-
     @InjectMocks
     private SeekerService seekerService;
 
