@@ -4,6 +4,7 @@ import com.walkmates.model.Seeker;
 import com.walkmates.repository.SeekerRepository;
 import com.walkmates.service.PaymentService;
 import com.walkmates.service.SeekerService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,6 +50,22 @@ class SeekerServiceTest {
     @InjectMocks
     private SeekerService seekerService;
 
+    private Seeker seeker;
+
+    /**
+     * Creates a reusable {@link Seeker} instance
+     * and configures the repository to return it for all test scenarios.
+     */
+    @BeforeEach
+    void setup() {
+        this.seeker = new Seeker(
+          "pat@example.com",
+          "Pat",
+          "0701112233"
+        );
+        when(seekerRepository.findById("seeker-1")).thenReturn(Optional.of(seeker));
+    }
+
     /**
      * Verifies the success path of {@link SeekerService#topUp(String, String, double)}:
      * a successful charge from {@link PaymentService} must credit the {@link Seeker}'s wallet
@@ -57,10 +74,6 @@ class SeekerServiceTest {
     @Test
     @DisplayName("Successful payment credits the Seeker wallet")
     void successfulPaymentCreditsWallet() throws PaymentService.PaymentException {
-
-        Seeker seeker = new Seeker("pat@example.com", "Pat", "0701112233");
-
-        when(seekerRepository.findById("seeker-1")).thenReturn(Optional.of(seeker));
         when(paymentService.charge(
           "seeker-1",
           "payment-method-1",
@@ -96,10 +109,6 @@ class SeekerServiceTest {
     @Test
     @DisplayName("Declined payment does not credit the Seeker wallet")
     void declinedPaymentDoesNotCreditWallet() throws PaymentService.PaymentException {
-
-        Seeker seeker = new Seeker("pat@example.com", "Pat", "0701112233");
-
-        when(seekerRepository.findById("seeker-1")).thenReturn(Optional.of(seeker));
         when(paymentService.charge(
           "seeker-1",
           "payment-method-1",
@@ -125,10 +134,6 @@ class SeekerServiceTest {
     @Test
     @DisplayName("Payment timeout does not credit the Seeker wallet")
     void paymentTimeoutDoesNotCreditWallet() throws PaymentService.PaymentException {
-
-        Seeker seeker = new Seeker("pat@example.com", "Pat", "0701112233");
-
-        when(seekerRepository.findById("seeker-1")) .thenReturn(Optional.of(seeker));
         when(paymentService.charge(
           "seeker-1",
           "payment-method-1",
