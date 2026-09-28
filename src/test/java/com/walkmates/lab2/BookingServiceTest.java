@@ -14,6 +14,7 @@ import com.walkmates.repository.SeekerRepository;
 import com.walkmates.service.BookingService;
 import com.walkmates.service.NotificationService;
 import com.walkmates.service.PricingCalculator;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,6 +75,33 @@ class BookingServiceTest {
     @InjectMocks
     private BookingService bookingService;
 
+    private Seeker seeker;
+    private Provider provider;
+    private Listing listing;
+
+    /**
+     * Creates reusable domain objects used by all booking scenarios.
+     *
+     * <p>
+     *   Establishes a funded {@link Seeker}, a {@link Provider},
+     *   and an available {@link Listing} so individual tests can focus
+     *   on behaviour rather than object construction.
+     * </p>
+     */
+    @BeforeEach
+    void setup() {
+        this.seeker = new Seeker("pat@example.com", "Pat", "0701112233");
+        this.seeker.addFunds(500.00);
+
+        this.provider = new Provider("Animal owner", 62.39, 17.31);
+
+        this.listing = new Listing(
+          this.provider.getId(),
+          "Walk the dog",
+          "A one-hour dog walk",
+          ListingType.DOG_WALK);
+    }
+
     /**
      * Verifies the success path of {@link BookingService#createBooking(String, String, int)}:
      * a booking is created with {@link BookingStatus#CONFIRMED} status
@@ -87,16 +115,6 @@ class BookingServiceTest {
     @Test
     @DisplayName("Successful booking sends a confirmation notification")
     void successfulBookingSendsConfirmationNotification() {
-        Seeker seeker = new Seeker("pat@example.com", "Pat", "0701112233");
-        seeker.addFunds(500.00);
-
-        Provider provider = new Provider("Animal owner", 62.39, 17.31);
-
-        Listing listing = new Listing(
-          provider.getId(),
-          "Walk the dog",
-          "A one-hour dog walk",
-          ListingType.DOG_WALK);
 
         when(seekerRepository.findById("seeker-1")).thenReturn(Optional.of(seeker));
         when(listingRepository.findById(listing.getId())).thenReturn(Optional.of(listing));
