@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.verify;
@@ -53,6 +54,10 @@ import static org.mockito.Mockito.when;
  */
 @ExtendWith(MockitoExtension.class)
 class BookingServiceTest {
+
+    private static final String SEEKER_ID = "seeker-1";
+    private static final int VALID_DURATION_MINUTES = 60;
+    private static final double BOOKING_PRICE = 100.00;
 
     @Mock
     private SeekerRepository seekerRepository;
@@ -103,6 +108,213 @@ class BookingServiceTest {
     }
 
     /**
+     * Configures mocked collaborators for a successful booking scenario.
+     *
+     * <p>
+     *   The seeker, provider, and listing exists, there are no conflicting bookings,
+     *   and the pricing service returns a fixed booking price.
+     * </p>
+     */
+    private void stubSuccessfulBookingFlow() {
+        when(seekerRepository.findById(SEEKER_ID))
+          .thenReturn(Optional.of(seeker));
+
+        when(listingRepository.findById(listing.getId()))
+          .thenReturn(Optional.of(listing));
+
+        when(providerRepository.findById(provider.getId()))
+          .thenReturn(Optional.of(provider));
+
+        when(bookingRepository.findBySeekerId(SEEKER_ID))
+          .thenReturn(List.of());
+
+        when(listingRepository.findByProviderId(provider.getId()))
+          .thenReturn(List.of(listing));
+
+        when(bookingRepository.findByListingId(listing.getId()))
+          .thenReturn(List.of());
+
+        when(pricingCalculator.priceFor(
+          any(Booking.class),
+          same(listing),
+          same(seeker))
+        ).thenReturn(BOOKING_PRICE);
+
+        when(bookingRepository.save(any(Booking.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0)
+        );
+    }
+
+    /**
+     * Executes a valid booking request using the shared happy-path setup.
+     * @return the created booking
+     */
+    private Booking createSuccessfulBooking() {
+        stubSuccessfulBookingFlow();
+
+        return bookingService.createBooking(
+          SEEKER_ID,
+          listing.getId(),
+          VALID_DURATION_MINUTES
+        );
+    }
+    // --- --- --- --- --- --- --- --- --- --- -- --- --- --- ---
+    // I think this one is superior
+    // V-- --- --- --- --- --- --- --- --- --- -- --- --- --- --V
+
+    /**
+     * Verifies the successful execution of {@link BookingService#createBooking(String, String, int)}.
+     *
+     * <p>A valid booking request should complete the entire booking workflow:</p>
+     * <ul>
+     *   <li>Create a booking with {@link BookingStatus#CONFIRMED} status.</li>
+     *   <li>Store the price returned by {@link PricingCalculator}.</li>
+     *   <li>Charge the {@link Seeker}'s wallet.</li>
+     *   <li>Mark the {@link Listing} as {@link ListingStatus#BOOKED}.</li>
+     *   <li>Persist all modified entities.</li>
+     *   <li>Send a booking confirmation notification.</li>
+     * </ul>
+     *
+     * <p>
+     *   Assertions are grouped using {@code assertAll(...)}
+     *   so that all workflow failures are reported together
+     *   rather than stopping at the first failing assertion.
+     * </p>
+     */
+    @Test
+    @DisplayName("Successful booking completes the entire booking workflow")
+    void successfulBookingCompletesWorkflow() {
+        Booking booking = createSuccessfulBooking();
+
+        assertAll(
+          "successful booking workflow",
+
+          () -> assertThat(booking.getStatus())
+            .as("booking status should be confirmed")
+            .isEqualTo(BookingStatus.CONFIRMED),
+
+          () -> assertThat(booking.getPrice())
+            .as("booking price should match the calculated price")
+            .isEqualTo(BOOKING_PRICE),
+
+          () -> assertThat(seeker.getBalance())
+            .as("seeker wallet should be charged by the booking price")
+            .isEqualTo(400.00),
+
+          () -> assertThat(listing.getStatus())
+            .as("listing status should be booked after booking")
+            .isEqualTo(ListingStatus.BOOKED)
+        );
+
+        assertAll(
+          "entities should be persisted",
+          () -> verify(seekerRepository).save(seeker),
+          () -> verify(listingRepository).save(listing),
+          () -> verify(bookingRepository).save(booking)
+        );
+
+        assertAll(
+          "notification should be sent",
+          () -> verify(notificationService).sendBookingConfirmed(seeker, booking)
+        );
+    }
+
+    // --- --- --- --- --- --- --- --- --- --- -- --- --- --- ---
+    // this one repeats the same happy path 8 times.
+    // V-- --- --- --- --- --- --- --- --- --- -- --- --- --- --V
+    /**
+     * Verifies that a successful booking is created with {@link BookingStatus#CONFIRMED}.
+     */
+    @Test
+    @DisplayName("Successful booking creates a confirmed booking")
+    void successfulBookingCreatesConfirmedBooking() {
+        Booking booking = createSuccessfulBooking();
+
+        assertThat(booking.getStatus()).isEqualTo(BookingStatus.CONFIRMED);
+    }
+
+    /**
+     * Verifies that the booking price is obtained from the pricing service and stored on the created booking.
+     */
+    @Test
+    @DisplayName("Successful booking stores calculated price")
+    void successfulBookingStoresCalculatedPrice() {
+        Booking booking = createSuccessfulBooking();
+
+        assertThat(booking.getPrice()).isEqualTo(BOOKING_PRICE);
+    }
+
+    /**
+     * Verifies that the seeker's wallet is charged for the booking.
+     */
+    @Test
+    @DisplayName("Successful booking charges the seeker")
+    void successfulBookingChargesSeeker() {
+        createSuccessfulBooking();
+
+        assertThat(seeker.getBalance()).isEqualTo(400.00);
+    }
+
+    /**
+     * Verifies that the booking listing is no longer available for additional bookings.
+     */
+    @Test
+    @DisplayName("Successful booking marks listing as booked")
+    void successfulBookingMarksListingAsBooked() {
+        createSuccessfulBooking();
+
+        assertThat(listing.getStatus()).isEqualTo(ListingStatus.BOOKED);
+    }
+
+    /**
+     * Verifies that a successful booking is persisted.
+     */
+    @Test
+    @DisplayName("Successful booking is persisted")
+    void successfulBookingPersists() {
+        Booking booking = createSuccessfulBooking();
+
+        verify(bookingRepository).save(booking);
+    }
+
+    /**
+     * Verifies that the updated seeker is persisted.
+     */
+    @Test
+    @DisplayName("Successful booking persists seeker changes")
+    void successfulBookingPersistSeekerChanges() {
+        createSuccessfulBooking();
+
+        verify(seekerRepository).save(seeker);
+    }
+
+    /**
+     * Verifies that the updated listing is persisted.
+     */
+    @Test
+    @DisplayName("Successful booking persists listing changes")
+    void successfulBookingPersistListingChanges() {
+        createSuccessfulBooking();
+
+        verify(listingRepository).save(listing);
+    }
+
+    /**
+     * Verifies that a confirmation notification is sent after the booking has been successfully created.
+     */
+    @Test
+    @DisplayName("Successful booking sends confirmation notification")
+    void successfulBookingSendsConfirmationNotification() {
+        Booking booking = createSuccessfulBooking();
+
+        verify(notificationService).sendBookingConfirmed(seeker, booking);
+    }
+
+    // --- --- --- --- --- --- --- --- --- --- -- --- --- --- ---
+    // This old one is just a very big mixed test method
+    // V-- --- --- --- --- --- --- --- --- --- -- --- --- --- --V
+
+    /**
      * Verifies the success path of {@link BookingService#createBooking(String, String, int)}:
      * a booking is created with {@link BookingStatus#CONFIRMED} status
      * and the price returned by {@link PricingCalculator},
@@ -114,7 +326,7 @@ class BookingServiceTest {
      */
     @Test
     @DisplayName("Successful booking sends a confirmation notification")
-    void successfulBookingSendsConfirmationNotification() {
+    void successfulBookingSendsConfirmationNotificationOld() {
 
         when(seekerRepository.findById("seeker-1")).thenReturn(Optional.of(seeker));
         when(listingRepository.findById(listing.getId())).thenReturn(Optional.of(listing));
