@@ -4,7 +4,7 @@ Copy [`reflection-template.md`](../lab-instructions/reflection-template.md) into
 once per lab and name the completed files:
 
 - [`lab1-reflection.md`](../reflections/lab1-reflection.md)
-- `lab2-reflection.md`
+- [`lab2-reflection.md`](../reflections/lab2-reflection.md)
 - `lab3-reflection.md`
 - `lab4-reflection.md`
 
