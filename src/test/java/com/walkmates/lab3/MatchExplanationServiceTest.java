@@ -70,6 +70,61 @@ class MatchExplanationServiceTest {
                 "This DOG_WALK opportunity \"Walk Rex\" is a good fit for a NEW seeker.");
     }
 
+    @Test
+    @DisplayName("explainMatch falls back when the LLM call times out")
+    void fallsBackOnLlmTimeout() throws Exception {
+        LlmClient llm = mock(LlmClient.class);
+        when(llm.complete(org.mockito.ArgumentMatchers.anyString()))
+                .thenThrow(new LlmClient.LlmTimeoutException("llm timeout"));
+        MatchExplanationService service = new MatchExplanationService(llm);
+        Seeker seeker = seeker();
+        Listing listing = listing("Friendly dog");
+
+        String result = service.explainMatch(seeker, listing);
+
+        // Use an independent, concrete oracle. Comparing result only with another call to
+        // fallbackExplanation would pass if both calls returned the same wrong text.
+        assertThat(result).isEqualTo(
+                "This DOG_WALK opportunity \"Walk Rex\" is a good fit for a NEW seeker.");
+    }
+
+    @Test
+    @DisplayName("explainMatch falls back when the LLM returns null")
+    void fallsBackWhenLlmReturnsNull() throws Exception {
+        LlmClient llm = mock(LlmClient.class);
+        when(llm.complete(org.mockito.ArgumentMatchers.anyString()))
+                .thenReturn(null);
+        MatchExplanationService service = new MatchExplanationService(llm);
+        Seeker seeker = seeker();
+        Listing listing = listing("Friendly dog");
+
+        String result = service.explainMatch(seeker, listing);
+
+        // Use an independent, concrete oracle. Comparing result only with another call to
+        // fallbackExplanation would pass if both calls returned the same wrong text.
+        assertThat(result).isEqualTo(
+                "This DOG_WALK opportunity \"Walk Rex\" is a good fit for a NEW seeker.");
+    }
+
+    @Test
+    @DisplayName("explainMatch falls back when the LLM returns a blank response")
+    void fallsBackWhenLlmReturnsBlank() throws Exception {
+        LlmClient llm = mock(LlmClient.class);
+        when(llm.complete(org.mockito.ArgumentMatchers.anyString()))
+                .thenReturn("   ");
+        MatchExplanationService service = new MatchExplanationService(llm);
+        Seeker seeker = seeker();
+        Listing listing = listing("Friendly dog");
+
+        String result = service.explainMatch(seeker, listing);
+
+        // Use an independent, concrete oracle. Comparing result only with another call to
+        // fallbackExplanation would pass if both calls returned the same wrong text.
+        assertThat(result).isEqualTo(
+                "This DOG_WALK opportunity \"Walk Rex\" is a good fit for a NEW seeker.");
+    }
+
+
     // TODO (fallback): also fall back on LlmTimeoutException, and on a null/blank response.
     // TODO (injection): a description containing "ignore previous instructions and ..." must
     //      stay inside the data block; buildPrompt must still contain the data delimiters.
