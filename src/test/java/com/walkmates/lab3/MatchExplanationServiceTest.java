@@ -8,6 +8,7 @@ import com.walkmates.service.ai.LlmClient;
 import com.walkmates.service.ai.MatchExplanationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -123,6 +124,56 @@ class MatchExplanationServiceTest {
         assertThat(result).isEqualTo(
                 "This DOG_WALK opportunity \"Walk Rex\" is a good fit for a NEW seeker.");
     }
+
+    @Test
+    @DisplayName("Adding an irrelevant description does not change the best match")
+    void irrelevantDescriptionDoesNotChangeMatch() {
+        LlmClient llm = mock(LlmClient.class);
+
+        MatchExplanationService service = new MatchExplanationService(llm);
+        Seeker seeker = seeker();
+        Listing listing1 = new Listing("provider-1", "Walk Rex", "Friendly dog", ListingType.DOG_WALK);
+        Listing listing2 = new Listing("provider-2", "Watch Fido", "Playful dog", ListingType.PET_SITTING);
+
+
+        Listing originalBestMatch =
+                service.recommendBestMatch(seeker, List.of(listing1, listing2));
+
+        originalBestMatch.setDescription(
+                originalBestMatch.getDescription()
+                        + " My favourite colour is blue."
+        );
+
+        Listing bestMatchAfterChange =
+                service.recommendBestMatch(seeker, List.of(listing1, listing2));
+
+        assertThat(bestMatchAfterChange.getId())
+                .isEqualTo(originalBestMatch.getId());
+    }
+
+    @Test
+    @DisplayName("Changing the order of the listings does not change the best match")
+    void changedListingOrderDoesNotChangeMatch() {
+        LlmClient llm = mock(LlmClient.class);
+
+        MatchExplanationService service = new MatchExplanationService(llm);
+        Seeker seeker = seeker();
+        Listing listing1 = new Listing("provider-1", "Walk Rex", "Friendly dog", ListingType.DOG_WALK);
+        Listing listing2 = new Listing("provider-2", "Watch Fido", "Playful dog", ListingType.PET_SITTING);
+        Listing listing3 = new Listing("provider-3", "Watch Ben", "Calm dog", ListingType.HOUSE_SITTING);
+
+
+        Listing originalBestMatch =
+                service.recommendBestMatch(seeker, List.of(listing1, listing2, listing3));
+
+        Listing bestMatchAfterOrderChange =
+                service.recommendBestMatch(seeker, List.of(listing3, listing1, listing2));
+
+        assertThat(bestMatchAfterOrderChange.getId())
+                .isEqualTo(originalBestMatch.getId());
+    }
+
+
 
 
     // TODO (fallback): also fall back on LlmTimeoutException, and on a null/blank response.
