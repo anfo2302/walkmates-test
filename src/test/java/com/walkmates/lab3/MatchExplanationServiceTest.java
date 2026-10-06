@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,77 +53,58 @@ class MatchExplanationServiceTest {
         assertThat(prompt).contains(expectedSubtest);
     }
 
-    // ---- Worked example 2: on LLM failure, fall back deterministically (FR-5.2) ----
-    @Test
-    @DisplayName("explainMatch falls back when the LLM call fails")
-    void fallsBackOnLlmFailure() throws Exception {
-        LlmClient llm = mock(LlmClient.class);
-        when(llm.complete(org.mockito.ArgumentMatchers.anyString()))
-                .thenThrow(new LlmClient.LlmException("provider down"));
+    // ---- On LLM failure, fall back deterministically (FR-5.2) ----
+    private void assertFallbackBehaviour(LlmClient llm) {
         MatchExplanationService service = new MatchExplanationService(llm);
         Seeker seeker = seeker();
         Listing listing = listing("Friendly dog");
 
         String result = service.explainMatch(seeker, listing);
 
-        // Use an independent, concrete oracle. Comparing result only with another call to
-        // fallbackExplanation would pass if both calls returned the same wrong text.
         assertThat(result).isEqualTo(
-                "This DOG_WALK opportunity \"Walk Rex\" is a good fit for a NEW seeker.");
+          "This DOG_WALK opportunity \"Walk Rex\" is a good fit for a NEW seeker."
+        );
+    }
+
+    // ---- Worked example 2: on LLM failure, fall back deterministically (FR-5.2) ----
+    @Test
+    @DisplayName("explainMatch falls back when the LLM call fails")
+    void fallsBackOnLlmFailure() throws Exception {
+        LlmClient llm = mock(LlmClient.class);
+        when(llm.complete(anyString()))
+          .thenThrow(new LlmClient.LlmException("provider down"));
+
+        assertFallbackBehaviour(llm);
     }
 
     @Test
     @DisplayName("explainMatch falls back when the LLM call times out")
     void fallsBackOnLlmTimeout() throws Exception {
         LlmClient llm = mock(LlmClient.class);
-        when(llm.complete(org.mockito.ArgumentMatchers.anyString()))
-                .thenThrow(new LlmClient.LlmTimeoutException("llm timeout"));
-        MatchExplanationService service = new MatchExplanationService(llm);
-        Seeker seeker = seeker();
-        Listing listing = listing("Friendly dog");
+        when(llm.complete(anyString()))
+          .thenThrow(new LlmClient.LlmTimeoutException("llm timeout"));
 
-        String result = service.explainMatch(seeker, listing);
-
-        // Use an independent, concrete oracle. Comparing result only with another call to
-        // fallbackExplanation would pass if both calls returned the same wrong text.
-        assertThat(result).isEqualTo(
-                "This DOG_WALK opportunity \"Walk Rex\" is a good fit for a NEW seeker.");
+        assertFallbackBehaviour(llm);
     }
 
     @Test
     @DisplayName("explainMatch falls back when the LLM returns null")
     void fallsBackWhenLlmReturnsNull() throws Exception {
         LlmClient llm = mock(LlmClient.class);
-        when(llm.complete(org.mockito.ArgumentMatchers.anyString()))
-                .thenReturn(null);
-        MatchExplanationService service = new MatchExplanationService(llm);
-        Seeker seeker = seeker();
-        Listing listing = listing("Friendly dog");
+        when(llm.complete(anyString()))
+          .thenReturn(null);
 
-        String result = service.explainMatch(seeker, listing);
-
-        // Use an independent, concrete oracle. Comparing result only with another call to
-        // fallbackExplanation would pass if both calls returned the same wrong text.
-        assertThat(result).isEqualTo(
-                "This DOG_WALK opportunity \"Walk Rex\" is a good fit for a NEW seeker.");
+        assertFallbackBehaviour(llm);
     }
 
     @Test
     @DisplayName("explainMatch falls back when the LLM returns a blank response")
     void fallsBackWhenLlmReturnsBlank() throws Exception {
         LlmClient llm = mock(LlmClient.class);
-        when(llm.complete(org.mockito.ArgumentMatchers.anyString()))
-                .thenReturn("   ");
-        MatchExplanationService service = new MatchExplanationService(llm);
-        Seeker seeker = seeker();
-        Listing listing = listing("Friendly dog");
+        when(llm.complete(anyString()))
+          .thenReturn("   ");
 
-        String result = service.explainMatch(seeker, listing);
-
-        // Use an independent, concrete oracle. Comparing result only with another call to
-        // fallbackExplanation would pass if both calls returned the same wrong text.
-        assertThat(result).isEqualTo(
-                "This DOG_WALK opportunity \"Walk Rex\" is a good fit for a NEW seeker.");
+        assertFallbackBehaviour(llm);
     }
 
     @Test
