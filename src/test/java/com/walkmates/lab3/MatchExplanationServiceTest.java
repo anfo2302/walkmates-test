@@ -37,10 +37,18 @@ class MatchExplanationServiceTest {
     void promptIncludesStructuredFields() {
         MatchExplanationService service = new MatchExplanationService(mock(LlmClient.class));
 
-        String prompt = service.buildPrompt(seeker(), listing("Friendly dog"));
+        String description = "Friendly dog";
+        String prompt = service.buildPrompt(seeker(), listing(description));
 
         assertThat(prompt).contains("Seeker trust tier: " + TrustTier.NEW);
         assertThat(prompt).contains("Listing type: " + ListingType.DOG_WALK);
+        assertThat(prompt).contains("Listing base rate (SEK/hour): " + ListingType.DOG_WALK.getBaseRatePerHour());
+        String expectedSubtest = """
+            <<<LISTING_DESCRIPTION_DATA
+            %s
+            LISTING_DESCRIPTION_DATA>>>""".formatted(description);
+
+        assertThat(prompt).contains(expectedSubtest);
     }
 
     // ---- Worked example 2: on LLM failure, fall back deterministically (FR-5.2) ----
